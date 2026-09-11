@@ -1,26 +1,25 @@
-# -*- coding: utf-8 -*-
 import os
 import random
 import fitz
 from PIL import Image
 import streamlit as st
 
-st.set_page_config(page_title="TELC Sınav Pratik", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="TELC Exam Practice", layout="wide", initial_sidebar_state="expanded")
 
 def check_password():
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = False
     if not st.session_state.authenticated:
-        st.markdown("<h2 style='text-align: center; color: #f8fafc;'>🔐 TELC Pratik Giriş</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: #f8fafc;'>TELC Login</h2>", unsafe_allow_html=True)
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            password_input = st.text_input("Şifrenizi Girin", type="password")
-            if st.button("Giriş Yap", use_container_width=True):
+            password_input = st.text_input("Enter Password", type="password")
+            if st.button("Login", use_container_width=True):
                 if password_input == "telc2026":
                     st.session_state.authenticated = True
                     st.rerun()
                 else:
-                    st.error("Hatalı Şifre!")
+                    st.error("Wrong Password!")
         return False
     return True
 
@@ -58,24 +57,24 @@ def pick_random_pdf(folder):
     files = [f for f in os.listdir(folder_path) if f.lower().endswith(".pdf")]
     return random.choice(files) if files else None
 
-st.sidebar.title("TELC SINAV UYGULAMASI")
+st.sidebar.title("TELC APP")
 subfolders = get_subfolders()
 if subfolders:
-    selected = st.sidebar.selectbox("Sınav Bölümü Seçin:", subfolders)
+    selected = st.sidebar.selectbox("Select Section:", subfolders)
     if selected != st.session_state.selected_folder:
         st.session_state.selected_folder = selected
         st.session_state.current_pdf = pick_random_pdf(selected)
         st.session_state.lv3_page = 0
-    if st.sidebar.button("🎲 Rastgele Test Getir", type="primary", use_container_width=True):
+    if st.sidebar.button("Random Test", type="primary", use_container_width=True):
         st.session_state.current_pdf = pick_random_pdf(selected)
         st.session_state.lv3_page = 0
         st.rerun()
 else:
-    st.sidebar.error("'TELC' klasörü bulunamadı!")
+    st.sidebar.error("'TELC' folder not found!")
 
 if st.session_state.current_pdf:
     pdf_path = os.path.join(BASE_FOLDER, st.session_state.selected_folder, st.session_state.current_pdf)
-    st.subheader(f"Bölüm: {st.session_state.selected_folder} | Dosya: {st.session_state.current_pdf}")
+    st.subheader(f"Section: {st.session_state.selected_folder} | File: {st.session_state.current_pdf}")
     doc = fitz.open(pdf_path)
     page_count = len(doc)
     folder_upper = st.session_state.selected_folder.upper()
@@ -86,32 +85,32 @@ if st.session_state.current_pdf:
     elif "LV3" in folder_upper and page_count >= 3:
         col_left, col_right = st.columns(2)
         with col_left:
-            st.markdown("### Sol Sayfa (Soru / Metin)")
+            st.markdown("### Left Page (Text / Questions)")
             btn_col1, btn_col2 = st.columns(2)
             with btn_col1:
-                if st.button("⬅️ Sayfa 1", use_container_width=True):
+                if st.button("Page 1", use_container_width=True):
                     st.session_state.lv3_page = 0
                     st.rerun()
             with btn_col2:
-                if st.button("Sayfa 2 ➡️", use_container_width=True):
+                if st.button("Page 2", use_container_width=True):
                     st.session_state.lv3_page = 1
                     st.rerun()
             img_left = render_page(doc, st.session_state.lv3_page)
             if img_left: st.image(img_left, use_column_width=True)
         with col_right:
-            st.markdown("### Sağ Sayfa (Seçenekler / Cevaplar)")
+            st.markdown("### Right Page (Options)")
             img_right = render_page(doc, 2)
             if img_right: st.image(img_right, use_column_width=True)
     else:
         col_left, col_right = st.columns(2)
         with col_left:
-            st.markdown("### Sol Sayfa")
+            st.markdown("### Left Page")
             img_left = render_page(doc, 0)
             if img_left: st.image(img_left, use_column_width=True)
         with col_right:
-            st.markdown("### Sağ Sayfa")
+            st.markdown("### Right Page")
             for p in range(1, page_count):
                 img_right = render_page(doc, p)
                 if img_right: st.image(img_right, use_column_width=True)
 else:
-    st.info("Lütfen bir bölüm seçin.")
+    st.info("Please select a section.")

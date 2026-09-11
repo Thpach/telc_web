@@ -81,7 +81,7 @@ if st.session_state.current_pdf:
     if "HV1" in folder_upper or "HV2" in folder_upper:
         for p in range(page_count):
             img = render_page(doc, p)
-            if img: st.image(img, use_column_width=True)
+            if img: st.image(img, use_container_width=True)
     elif "LV3" in folder_upper and page_count >= 3:
         col_left, col_right = st.columns(2)
         with col_left:
@@ -96,21 +96,21 @@ if st.session_state.current_pdf:
                     st.session_state.lv3_page = 1
                     st.rerun()
             img_left = render_page(doc, st.session_state.lv3_page)
-            if img_left: st.image(img_left, use_column_width=True)
+            if img_left: st.image(img_left, use_container_width=True)
         with col_right:
             st.markdown("### Right Page (Options)")
             img_right = render_page(doc, 2)
-            if img_right: st.image(img_right, use_column_width=True)
+            if img_right: st.image(img_right, use_container_width=True)
     else:
         col_left, col_right = st.columns(2)
         with col_left:
             st.markdown("### Left Page")
             img_left = render_page(doc, 0)
-            if img_left: st.image(img_left, use_column_width=True)
+            if img_left: st.image(img_left, use_container_width=True)
         with col_right:
             st.markdown("### Right Page")
             for p in range(1, page_count):
                 img_right = render_page(doc, p)
-                if img_right: st.image(img_right, use_column_width=True)
+                if img_right: st.image(img_right, use_container_width=True)
 else:
     st.info("Please select a section.")

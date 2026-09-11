@@ -41,6 +41,7 @@ if "current_pdf" not in st.session_state: st.session_state.current_pdf = None
 if "selected_folder" not in st.session_state: st.session_state.selected_folder = ""
 if "lv3_page" not in st.session_state: st.session_state.lv3_page = 0
 if "lv3_right_page" not in st.session_state: st.session_state.lv3_right_page = 2
+if "viewed_files" not in st.session_state: st.session_state.viewed_files = {}
 
 def get_subfolders():
     if not os.path.exists(BASE_FOLDER): return []
@@ -56,7 +57,23 @@ def pick_random_pdf(folder):
     folder_path = os.path.join(BASE_FOLDER, folder)
     if not os.path.exists(folder_path): return None
     files = [f for f in os.listdir(folder_path) if f.lower().endswith(".pdf")]
-    return random.choice(files) if files else None
+    if not files: return None
+    
+    if folder not in st.session_state.viewed_files:
+        st.session_state.viewed_files[folder] = []
+        
+    # Henüz çözülmemiş dosyaları filtrele
+    available_files = [f for f in files if f not in st.session_state.viewed_files[folder]]
+    
+    # Eğer tüm dosyalar çözüldüyse hafızayı sıfırla ve baştan başla
+    if not available_files:
+        st.session_state.viewed_files[folder] = []
+        available_files = files
+        st.sidebar.info("Bu bölümdeki tüm sorular bitti! Döngü baştan başlıyor.")
+        
+    chosen = random.choice(available_files)
+    st.session_state.viewed_files[folder].append(chosen)
+    return chosen
 
 st.sidebar.title("TELC APP")
 subfolders = get_subfolders()

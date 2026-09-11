@@ -1,25 +1,26 @@
+# -*- coding: utf-8 -*-
 import os
 import random
 import fitz
 from PIL import Image
 import streamlit as st
 
-st.set_page_config(page_title="TELC Snav Pratik", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="TELC SÄ±nav Pratik", layout="wide", initial_sidebar_state="expanded")
 
 def check_password():
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = False
     if not st.session_state.authenticated:
-        st.markdown("<h2 style='text-align: center; color: #f8fafc;'>?? TELC Pratik GiriŸ</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: #f8fafc;'>ğŸ” TELC Pratik GiriÅŸ</h2>", unsafe_allow_html=True)
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            password_input = st.text_input("ifrenizi Girin", type="password")
-            if st.button("GiriŸ Yap", use_container_width=True):
+            password_input = st.text_input("Åifrenizi Girin", type="password")
+            if st.button("GiriÅŸ Yap", use_container_width=True):
                 if password_input == "telc2026":
                     st.session_state.authenticated = True
                     st.rerun()
                 else:
-                    st.error("Hatal Ÿifre!")
+                    st.error("HatalÄ± Åifre!")
         return False
     return True
 
@@ -33,7 +34,7 @@ st.markdown("""
     div[data-testid="stSidebar"] { background-color: #020617; }
     button[kind="primary"] { background-color: #10b981 !important; border: none; }
     </style>
-""", unsafe_allow_html=True^)
+""", unsafe_allow_html=True)
 
 BASE_FOLDER = "TELC"
 
@@ -60,21 +61,21 @@ def pick_random_pdf(folder):
 st.sidebar.title("TELC SINAV UYGULAMASI")
 subfolders = get_subfolders()
 if subfolders:
-    selected = st.sidebar.selectbox("Snav B”lm Se‡in:", subfolders)
+    selected = st.sidebar.selectbox("SÄ±nav BÃ¶lÃ¼mÃ¼ SeÃ§in:", subfolders)
     if selected != st.session_state.selected_folder:
         st.session_state.selected_folder = selected
         st.session_state.current_pdf = pick_random_pdf(selected)
         st.session_state.lv3_page = 0
-    if st.sidebar.button("?? Rastgele Test Getir", type="primary", use_container_width=True):
+    if st.sidebar.button("ğŸ² Rastgele Test Getir", type="primary", use_container_width=True):
         st.session_state.current_pdf = pick_random_pdf(selected)
         st.session_state.lv3_page = 0
         st.rerun()
 else:
-    st.sidebar.error("'TELC' klas”r bulunamad!")
+    st.sidebar.error("'TELC' klasÃ¶rÃ¼ bulunamadÄ±!")
 
 if st.session_state.current_pdf:
     pdf_path = os.path.join(BASE_FOLDER, st.session_state.selected_folder, st.session_state.current_pdf)
-    st.subheader(f"B”lm: {st.session_state.selected_folder} | Dosya: {st.session_state.current_pdf}")
+    st.subheader(f"BÃ¶lÃ¼m: {st.session_state.selected_folder} | Dosya: {st.session_state.current_pdf}")
     doc = fitz.open(pdf_path)
     page_count = len(doc)
     folder_upper = st.session_state.selected_folder.upper()
@@ -88,17 +89,17 @@ if st.session_state.current_pdf:
             st.markdown("### Sol Sayfa (Soru / Metin)")
             btn_col1, btn_col2 = st.columns(2)
             with btn_col1:
-                if st.button("? Sayfa 1", use_container_width=True):
+                if st.button("â¬…ï¸ Sayfa 1", use_container_width=True):
                     st.session_state.lv3_page = 0
                     st.rerun()
             with btn_col2:
-                if st.button("Sayfa 2 ?", use_container_width=True):
+                if st.button("Sayfa 2 â¡ï¸", use_container_width=True):
                     st.session_state.lv3_page = 1
                     st.rerun()
             img_left = render_page(doc, st.session_state.lv3_page)
             if img_left: st.image(img_left, use_column_width=True)
         with col_right:
-            st.markdown("### Sa§ Sayfa (Se‡enekler / Cevaplar)")
+            st.markdown("### SaÄŸ Sayfa (SeÃ§enekler / Cevaplar)")
             img_right = render_page(doc, 2)
             if img_right: st.image(img_right, use_column_width=True)
     else:
@@ -108,9 +109,9 @@ if st.session_state.current_pdf:
             img_left = render_page(doc, 0)
             if img_left: st.image(img_left, use_column_width=True)
         with col_right:
-            st.markdown("### Sa§ Sayfa")
+            st.markdown("### SaÄŸ Sayfa")
             for p in range(1, page_count):
                 img_right = render_page(doc, p)
                 if img_right: st.image(img_right, use_column_width=True)
 else:
-    st.info("Ltfen bir b”lm se‡in.")
+    st.info("LÃ¼tfen bir bÃ¶lÃ¼m seÃ§in.")

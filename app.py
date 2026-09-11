@@ -40,6 +40,7 @@ BASE_FOLDER = "TELC"
 if "current_pdf" not in st.session_state: st.session_state.current_pdf = None
 if "selected_folder" not in st.session_state: st.session_state.selected_folder = ""
 if "lv3_page" not in st.session_state: st.session_state.lv3_page = 0
+if "lv3_right_page" not in st.session_state: st.session_state.lv3_right_page = 2
 
 def get_subfolders():
     if not os.path.exists(BASE_FOLDER): return []
@@ -65,9 +66,11 @@ if subfolders:
         st.session_state.selected_folder = selected
         st.session_state.current_pdf = pick_random_pdf(selected)
         st.session_state.lv3_page = 0
+        st.session_state.lv3_right_page = 2
     if st.sidebar.button("Random Test", type="primary", use_container_width=True):
         st.session_state.current_pdf = pick_random_pdf(selected)
         st.session_state.lv3_page = 0
+        st.session_state.lv3_right_page = 2
         st.rerun()
 else:
     st.sidebar.error("'TELC' folder not found!")
@@ -78,12 +81,15 @@ if st.session_state.current_pdf:
     doc = fitz.open(pdf_path)
     page_count = len(doc)
     folder_upper = st.session_state.selected_folder.upper()
+    
     if "HV1" in folder_upper or "HV2" in folder_upper:
         for p in range(page_count):
             img = render_page(doc, p)
             if img: st.image(img, use_container_width=True)
+            
     elif "LV3" in folder_upper and page_count >= 3:
         col_left, col_right = st.columns(2)
+        
         with col_left:
             st.markdown("### Left Page (Text / Questions)")
             btn_col1, btn_col2 = st.columns(2)
@@ -97,10 +103,23 @@ if st.session_state.current_pdf:
                     st.rerun()
             img_left = render_page(doc, st.session_state.lv3_page)
             if img_left: st.image(img_left, use_container_width=True)
+            
         with col_right:
-            st.markdown("### Right Page (Options)")
-            img_right = render_page(doc, 2)
+            st.markdown("### Right Page (Options / Answers)")
+            r_btn1, r_btn2 = st.columns(2)
+            with r_btn1:
+                if st.button("Prev Right Page", use_container_width=True) and st.session_state.lv3_right_page > 0:
+                    st.session_state.lv3_right_page -= 1
+                    st.rerun()
+            with r_btn2:
+                if st.button("Next Right Page", use_container_width=True) and st.session_state.lv3_right_page < page_count - 1:
+                    st.session_state.lv3_right_page += 1
+                    st.rerun()
+            
+            st.write(f"Current Right Page: {st.session_state.lv3_right_page + 1} / {page_count}")
+            img_right = render_page(doc, st.session_state.lv3_right_page)
             if img_right: st.image(img_right, use_container_width=True)
+            
     else:
         col_left, col_right = st.columns(2)
         with col_left:

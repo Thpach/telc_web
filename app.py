@@ -1,15 +1,10 @@
 import os
 import random
-import hashlib
 import fitz
 from PIL import Image
 import streamlit as st
 
 st.set_page_config(page_title="TELC Exam Practice", layout="wide", initial_sidebar_state="expanded")
-
-# Belirlediğimiz çok güçlü yeni şifrenin SHA-256 hash değeri
-# Şifre: Xk9#mP$vL8zQ!2wX*fN7$bV#4yRt
-TARGET_PASSWORD_HASH = "8f567bda29fb1e5ee5c3a2f7d3cf2418e974e449265f242512f45ea2e82103f6"
 
 def check_password():
     if "authenticated" not in st.session_state:
@@ -20,8 +15,7 @@ def check_password():
         with col2:
             password_input = st.text_input("Enter Password", type="password")
             if st.button("Login", use_container_width=True):
-                input_hash = hashlib.sha256(password_input.encode()).hexdigest()
-                if input_hash == TARGET_PASSWORD_HASH:
+                if password_input == "Xk9#mP$vL8zQ!2wX*fN7$bV#4yRt":
                     st.session_state.authenticated = True
                     st.rerun()
                 else:
